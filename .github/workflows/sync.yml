@@ -1,0 +1,35 @@
+name: Sync CC-CEDICT
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "0 22 * * 6"
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download + extract
+        run: |
+          curl -L https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.txt.gz \
+          | gunzip > cedict.txt
+
+      - name: Git auto commit
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
+          commit_author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+          commit_message: Automated update
+          # commit_options: '--no-verify --signoff'
+          # push_options: "--force"
+          file_pattern: "*.txt"
